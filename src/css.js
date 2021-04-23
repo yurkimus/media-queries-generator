@@ -4,6 +4,34 @@ const isArray = (data) => data instanceof Array
 
 const isNumber = (data) => typeof data === 'number' || data instanceof Number
 
+export const generateConstraints = (breakpoints) => {
+  const formatted = Object.values(breakpoints)
+
+  const values = formatted.reduce((acc, curr) => ({ ...acc, [curr]: [] }), {})
+
+  return {
+    getConstraints: (initial) => ({ ...values, ...initial }),
+    getStep: (start, end) => (start - end) / formatted.length
+  }
+}
+
+const px = (value, separator) => {
+  if (isArray(value)) return value.map((number) => number + 'px').join(separator)
+
+  if (isNumber(value)) return value + 'px'
+}
+
+const property = (prop, value, addon) =>
+  `${prop}: ${
+    addon?.modify ? addon?.modify(px(value, addon?.separator ?? ' ')) : px(value, addon?.separator ?? ' ')
+  };`
+
+const media = (breakpoint, value) => css`
+  @media (max-width: ${breakpoint}px) {
+    ${value}
+  }
+`
+
 export const generate = (breakpoints, step, props, addon) => {
   return [...props.entries()].map((entry) => {
     const boundaries = Object.values(breakpoints)
@@ -15,57 +43,21 @@ export const generate = (breakpoints, step, props, addon) => {
 
       const value = props.get(prop)[boundary]
 
-      if (isNumber(value)) {
+      if (isNumber(value))
         props.set(prop, {
           ...props.get(prop),
           [next]: props.get(prop)[boundary] - step
         })
-      }
 
-      if (isArray(value)) {
+      if (isArray(value))
         props.set(prop, {
           ...props.get(prop),
           [next]: props.get(prop)[boundary].map((n) => n - step)
         })
-      }
 
       return next
         ? media(boundary, property(prop, value, addon))
         : media(boundaries[last], property(prop, value, addon))
     })
   })
-}
-
-export function generateConstraints(breakpoints) {
-  const formatted = Object.values(breakpoints)
-
-  const values = formatted.reduce((acc, curr) => ({ ...acc, [curr]: [] }), {})
-
-  return {
-    getConstraints: (initial) => ({ ...values, ...initial }),
-    getStep: (start, end) => (start - end) / formatted.length
-  }
-}
-
-function media(breakpoint, value) {
-  return css`
-    @media (max-width: ${breakpoint}px) {
-      ${value}
-    }
-  `
-}
-
-function px(value, separator) {
-  if (isArray(value))
-    return value.map((number) => number + 'px').join(separator)
-
-  if (isNumber(value)) return value + 'px'
-}
-
-function property(prop, value, addon) {
-  return `${prop}: ${
-    addon?.modify
-      ? addon?.modify(px(value, addon?.separator ?? ' '))
-      : px(value, addon?.separator ?? ' ')
-  };`
 }
