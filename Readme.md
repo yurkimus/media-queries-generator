@@ -18,7 +18,8 @@ const sizes = [ 1680, 1024, 460, 320 ]
 
 ```javascript
 const h1 = new Map([
-  ['font-size', { base: 38, target: 20, unit: "px" }]
+  ['font-size', { base: 38, target: 20, unit: "px" }],
+  ['line-height', { base: 42, target: 34, unit: "px" }]
 ])
 ```
 
@@ -29,6 +30,7 @@ const h1 = new Map([
 ```javascript
 const Component = styled.something`
   font-size: 38px; // => base value for any screen
+  line-height: 42px;
 
   ${generate(sizes, h1)}
 `
