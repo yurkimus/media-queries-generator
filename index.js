@@ -1,12 +1,4 @@
 /**
- * use OPTIONS object to modify `generator` output
- * available props: className - string - css classname
- */
-const options = {
-  className: 'aside__navigation'
-}
-
-/**
  *
  * @param {string} property css property from properties Map
  * @param {number} value calculated value from property configuration in properties Map
